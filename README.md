@@ -39,8 +39,8 @@
 ### 2. 安装依赖
 
 ```bash
-# 克隆项目（如果有）
-git clone <项目地址>
+# 克隆项目
+git clone https://github.com/Gniming/api-auto-test.git
 cd api-auto-test
 
 # 创建虚拟环境
