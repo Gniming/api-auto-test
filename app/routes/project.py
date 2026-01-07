@@ -10,13 +10,17 @@ project = Blueprint('project', __name__)
 @login_required
 def get_projects():
     try:
+        # 获取分页参数
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 10, type=int)
+        
         # 获取当前用户的所有项目
         print(f"Current user ID: {current_user.id}")
-        projects = Project.query.all()
+        pagination = Project.query.paginate(page=page, per_page=page_size, error_out=False)
         
         # 格式化项目数据
         projects_data = []
-        for proj in projects:
+        for proj in pagination.items:
             print(f"Project ID: {proj.id}, Creator ID: {proj.creator_id}")
             projects_data.append({
                 'id': proj.id,
@@ -31,7 +35,13 @@ def get_projects():
             'code': 200,
             'msg': 'success',
             'data': {
-                'projects': projects_data
+                'projects': projects_data,
+                'pagination': {
+                    'total': pagination.total,
+                    'page': page,
+                    'page_size': page_size,
+                    'total_pages': pagination.pages
+                }
             }
         })
         

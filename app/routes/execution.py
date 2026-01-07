@@ -240,14 +240,21 @@ def get_project_reports(project_id):
         # 验证项目是否存在
         project = Project.query.filter_by(id=project_id).first()
         if not project:
-            return jsonify({'code': 404, 'msg': '项目不存在'})
+            return jsonify({
+                'code': 404,
+                'msg': '项目不存在'
+            })
+        
+        # 获取分页参数
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 10, type=int)
         
         # 查询项目下的任务，按创建时间倒序
-        tasks = Task.query.filter_by(project_id=project_id).order_by(Task.created_at.desc()).limit(50).all()
+        pagination = Task.query.filter_by(project_id=project_id).order_by(Task.created_at.desc()).paginate(page=page, per_page=page_size, error_out=False)
         
         # 格式化报告数据
         reports = []
-        for task in tasks:
+        for task in pagination.items:
             # 获取测试用例信息
             case_name = ''
             if task.case_id:
@@ -280,9 +287,18 @@ def get_project_reports(project_id):
             'code': 200,
             'msg': 'success',
             'data': {
-                'reports': reports
+                'reports': reports,
+                'pagination': {
+                    'total': pagination.total,
+                    'page': page,
+                    'page_size': page_size,
+                    'total_pages': pagination.pages
+                }
             }
         })
         
     except Exception as e:
-        return jsonify({'code': 500, 'msg': f'获取报告列表失败: {str(e)}'})
+        return jsonify({
+            'code': 500,
+            'msg': f'获取报告列表失败: {str(e)}'
+        })

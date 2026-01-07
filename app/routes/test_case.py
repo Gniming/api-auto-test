@@ -15,12 +15,16 @@ test_case = Blueprint('test_case', __name__)
 @login_required
 def get_cases(project_id):
     try:
+        # 获取分页参数
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 10, type=int)
+        
         # 获取指定项目下的所有测试用例
-        cases = TestCase.query.filter_by(project_id=project_id).order_by(TestCase.sort).all()
+        pagination = TestCase.query.filter_by(project_id=project_id).order_by(TestCase.sort).paginate(page=page, per_page=page_size, error_out=False)
         
         # 格式化测试用例数据
         cases_data = []
-        for case in cases:
+        for case in pagination.items:
             cases_data.append({
                 'id': case.id,
                 'name': case.name,
@@ -35,7 +39,13 @@ def get_cases(project_id):
             'code': 200,
             'msg': 'success',
             'data': {
-                'cases': cases_data
+                'cases': cases_data,
+                'pagination': {
+                    'total': pagination.total,
+                    'page': page,
+                    'page_size': page_size,
+                    'total_pages': pagination.pages
+                }
             }
         })
         
@@ -284,10 +294,13 @@ def batch_save_steps(case_id):
         case_name = data.get('case_name')
         steps = data.get('steps', [])
         
-        # 更新测试用例名称
+        # 更新测试用例名称和描述
         if case_name:
             case.name = case_name
-            case.updated_at = datetime.now()
+        case_description = data.get('case_description')
+        if case_description is not None:
+            case.description = case_description
+        case.updated_at = datetime.now()
         
         # 获取原用例下所有 step_id、request_data_id、extract_ids、assert_ids
         old_steps = CaseStep.query.filter_by(case_id=case_id).all()

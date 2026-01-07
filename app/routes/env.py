@@ -10,12 +10,16 @@ env = Blueprint('env', __name__)
 @login_required
 def get_envs():
     try:
+        # 获取分页参数
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 10, type=int)
+        
         # 获取所有环境
-        envs = Env.query.all()
+        pagination = Env.query.paginate(page=page, per_page=page_size, error_out=False)
         
         # 格式化环境数据
         envs_data = []
-        for e in envs:
+        for e in pagination.items:
             envs_data.append({
                 'id': e.id,
                 'name': e.name,
@@ -30,7 +34,13 @@ def get_envs():
             'code': 200,
             'msg': 'success',
             'data': {
-                'envs': envs_data
+                'envs': envs_data,
+                'pagination': {
+                    'total': pagination.total,
+                    'page': page,
+                    'page_size': page_size,
+                    'total_pages': pagination.pages
+                }
             }
         })
         

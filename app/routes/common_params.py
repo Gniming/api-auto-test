@@ -13,6 +13,8 @@ def get_common_params():
     try:
         # 获取查询参数
         project_id = request.args.get('project_id', type=int)
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 10, type=int)
         
         # 构建查询
         query = CommonParams.query
@@ -25,11 +27,11 @@ def get_common_params():
             query = query
         
         # 执行查询
-        params_list = query.all()
+        pagination = query.paginate(page=page, per_page=page_size, error_out=False)
         
         # 格式化数据
         params_data = []
-        for params in params_list:
+        for params in pagination.items:
             params_data.append({
                 'id': params.id,
                 'project_id': params.project_id,
@@ -44,7 +46,13 @@ def get_common_params():
             'code': 200,
             'msg': 'success',
             'data': {
-                'common_params': params_data
+                'common_params': params_data,
+                'pagination': {
+                    'total': pagination.total,
+                    'page': page,
+                    'page_size': page_size,
+                    'total_pages': pagination.pages
+                }
             }
         })
         
