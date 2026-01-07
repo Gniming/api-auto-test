@@ -8,7 +8,7 @@
       <el-table-column prop="name" label="环境名" width="150"></el-table-column>
       <el-table-column prop="base_url" label="Base URL"></el-table-column>
       <el-table-column prop="description" label="描述"></el-table-column>
-      <el-table-column prop="creator_id" label="创建人" width="100"></el-table-column>
+      <el-table-column prop="creator_name" label="创建人" width="120"></el-table-column>
       <el-table-column label="操作" width="150">
         <template #default="scope">
           <el-button size="small" @click="handleEditEnv(scope.row)">编辑</el-button>

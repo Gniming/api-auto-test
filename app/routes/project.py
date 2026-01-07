@@ -20,13 +20,21 @@ def get_projects():
         
         # 格式化项目数据
         projects_data = []
+        from app.models.user import User
         for proj in pagination.items:
             print(f"Project ID: {proj.id}, Creator ID: {proj.creator_id}")
+            # 获取创建人昵称
+            creator_nickname = ''
+            creator = User.query.filter_by(id=proj.creator_id).first()
+            if creator:
+                creator_nickname = creator.nickname or creator.username
+            
             projects_data.append({
                 'id': proj.id,
                 'name': proj.name,
                 'description': proj.description,
                 'creator_id': proj.creator_id,
+                'creator_name': creator_nickname,
                 'created_at': proj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'updated_at': proj.updated_at.strftime('%Y-%m-%d %H:%M:%S')
             })

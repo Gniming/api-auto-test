@@ -19,6 +19,7 @@
       <el-table-column prop="created_at" label="执行时间" width="180"></el-table-column>
       <el-table-column prop="case_name" label="用例名" min-width="200" flex="1"></el-table-column>
       <el-table-column prop="env_name" label="环境" width="120"></el-table-column>
+      <el-table-column prop="executor_name" label="执行人" width="120"></el-table-column>
       <el-table-column prop="status" label="结果" width="80">
         <template #default="scope">
           <span :class="scope.row.status">{{ scope.row.status }}</span>

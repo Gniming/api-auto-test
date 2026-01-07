@@ -7,14 +7,15 @@
     
     <el-tabs v-model="activeTab">
       <el-tab-pane label="全局" name="global">
-        <el-table :data="globalParams" style="width: 100%">
-          <el-table-column prop="name" label="名称" width="200"></el-table-column>
-          <el-table-column prop="headers" label="Headers 预览" width="300">
+        <el-table :data="globalParams" style="width: 100%" :cell-style="{ padding: '12px 8px' }">
+          <el-table-column prop="name" label="名称" width="180"></el-table-column>
+          <el-table-column prop="headers" label="Headers 预览" min-width="300" flex="1">
             <template #default="scope">
               <pre class="headers-preview">{{ typeof scope.row.headers === 'object' ? JSON.stringify(scope.row.headers, null, 2) : scope.row.headers }}</pre>
             </template>
           </el-table-column>
-          <el-table-column prop="description" label="描述"></el-table-column>
+          <el-table-column prop="description" label="描述" width="150"></el-table-column>
+          <el-table-column prop="creator_name" label="创建人" width="120"></el-table-column>
           <el-table-column label="操作" width="150">
             <template #default="scope">
               <el-button size="small" @click="handleEditParam(scope.row)">编辑</el-button>
@@ -43,7 +44,8 @@
               <pre class="headers-preview">{{ typeof scope.row.headers === 'object' ? JSON.stringify(scope.row.headers, null, 2) : scope.row.headers }}</pre>
             </template>
           </el-table-column>
-          <el-table-column prop="description" label="描述"></el-table-column>
+          <el-table-column prop="description" label="描述" width="200"></el-table-column>
+          <el-table-column prop="creator_name" label="创建人" width="120"></el-table-column>
           <el-table-column label="操作" width="150">
             <template #default="scope">
               <el-button size="small" @click="handleEditParam(scope.row)">编辑</el-button>

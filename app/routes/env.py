@@ -19,13 +19,21 @@ def get_envs():
         
         # 格式化环境数据
         envs_data = []
+        from app.models.user import User
         for e in pagination.items:
+            # 获取创建人昵称
+            creator_nickname = ''
+            creator = User.query.filter_by(id=e.creator_id).first()
+            if creator:
+                creator_nickname = creator.nickname or creator.username
+            
             envs_data.append({
                 'id': e.id,
                 'name': e.name,
                 'base_url': e.base_url,
                 'description': e.description,
                 'creator_id': e.creator_id,
+                'creator_name': creator_nickname,
                 'created_at': e.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'updated_at': e.updated_at.strftime('%Y-%m-%d %H:%M:%S')
             })

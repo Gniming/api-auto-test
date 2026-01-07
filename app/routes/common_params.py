@@ -31,7 +31,14 @@ def get_common_params():
         
         # 格式化数据
         params_data = []
+        from app.models.user import User
         for params in pagination.items:
+            # 获取创建人昵称
+            creator_nickname = ''
+            creator = User.query.filter_by(id=params.creator_id).first()
+            if creator:
+                creator_nickname = creator.nickname or creator.username
+            
             params_data.append({
                 'id': params.id,
                 'project_id': params.project_id,
@@ -39,6 +46,7 @@ def get_common_params():
                 'headers': json.loads(params.headers),
                 'description': params.description,
                 'creator_id': params.creator_id,
+                'creator_name': creator_nickname,
                 'created_at': params.created_at.strftime('%Y-%m-%d %H:%M:%S')
             })
         

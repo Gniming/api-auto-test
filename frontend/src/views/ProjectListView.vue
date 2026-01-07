@@ -7,7 +7,7 @@
     <el-table :data="projects" style="width: 100%">
       <el-table-column prop="name" label="项目名" width="200"></el-table-column>
       <el-table-column prop="description" label="描述"></el-table-column>
-      <el-table-column prop="creator_id" label="创建人" width="100"></el-table-column>
+      <el-table-column prop="creator_name" label="创建人" width="120"></el-table-column>
       <el-table-column prop="created_at" label="创建时间" width="180"></el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="scope">

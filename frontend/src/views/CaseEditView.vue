@@ -1,12 +1,10 @@
 <template>
   <div class="case-edit-container">
     <div class="case-header">
-      <el-button @click="handleBack">← 返回</el-button>
       <div class="case-info">
         <el-input v-model="caseInfo.name" placeholder="用例名称" class="case-name-input"></el-input>
         <el-input v-model="caseInfo.description" type="textarea" placeholder="用例描述" class="case-description-input"></el-input>
       </div>
-      <el-button type="primary" @click="handleSaveCase" class="save-button">保存</el-button>
     </div>
     
     <div class="case-content">
@@ -16,10 +14,14 @@
         <div class="step-items">
           <div 
             v-for="(step, index) in steps" 
-            :key="step.id || index"
+            :key="`${step.id || index}-${step.sort || index}`"
             class="step-item"
             :class="{ active: activeStepIndex === index }"
             @click="handleSelectStep(index)"
+            draggable="true"
+            @dragstart="handleDragStart($event, index)"
+            @dragover.prevent
+            @drop="handleDrop($event, index)"
           >
             <div class="step-header">
               <span class="step-index">{{ index + 1 }}</span>
@@ -27,6 +29,8 @@
               <span class="step-method">{{ step.method }}</span>
               <span class="step-path">{{ step.path }}</span>
               <div class="step-actions">
+                <el-button size="small" @click.stop="handleMoveStep(index, 'up')" :disabled="index === 0">上移</el-button>
+                <el-button size="small" @click.stop="handleMoveStep(index, 'down')" :disabled="index === steps.length - 1">下移</el-button>
                 <el-button size="small" @click.stop="handleEditStep(index)">编辑</el-button>
                 <el-button size="small" type="danger" @click.stop="handleDeleteStep(index)">删除</el-button>
               </div>
@@ -54,7 +58,7 @@
             <el-input v-model="activeStep.path" placeholder="请求路径"></el-input>
           </el-form-item>
           
-          <el-tabs v-model="activeTab">
+          <el-tabs v-model="activeTab" style="margin-bottom: 20px;">
             <el-tab-pane label="Params" name="params">
               <el-button type="primary" size="small" @click="handleAddParam">+ 添加参数</el-button>
               <el-table :data="activeStep.request.paramsList" style="width: 100%; margin-top: 10px;">
@@ -105,9 +109,14 @@
             </el-tab-pane>
           </el-tabs>
           
-          <el-form-item label="变量提取">
-            <el-button type="primary" size="small" @click="handleAddExtract">+ 添加提取规则</el-button>
-            <el-table :data="activeStep.extracts" style="width: 100%; margin-top: 10px;">
+          <el-form-item label="变量提取" style="margin-top: 20px;">
+            <div style="display: flex; flex-direction: column; width: 100%;">
+              <div style="width: 100%; margin-bottom: 10px;">
+                <div style="float: right; margin-right: 40px;">
+                  <el-button type="primary" size="small" @click="handleAddExtract">添加</el-button>
+                </div>
+              </div>
+              <el-table :data="activeStep.extracts" style="width: 100%; margin-top: 10px;">
                   <el-table-column prop="var_name" label="变量名" width="150">
                     <template #default="scope">
                       <el-input v-model="scope.row.var_name" placeholder="变量名"></el-input>
@@ -117,19 +126,23 @@
                     <template #default="scope">
                       <el-input v-model="scope.row.expression" placeholder="表达式"></el-input>
                     </template>
-                  </el-table-column>
-                  <el-table-column label="操作" width="100">
+                  </el-table-column>                  <el-table-column label="操作" width="100">
                     <template #default="scope">
                       <el-button size="small" type="danger" @click="handleDeleteExtract(scope.$index)">删除</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
+              </div>
           </el-form-item>
           
           <el-form-item label="断言规则">
-            <el-button type="primary" size="small" @click="handleAddAssert">+ 添加断言</el-button>
-            <el-table :data="activeStep.asserts" style="width: 100%; margin-top: 10px;">
-                  <el-table-column prop="assert_type" label="类型" width="150">
+            <div style="display: flex; flex-direction: column; width: 100%;">
+              <div style="width: 100%; margin-bottom: 10px;">
+                <div style="float: right; margin-right: 40px;">
+                  <el-button type="primary" size="small" @click="handleAddAssert">添加</el-button>
+                </div>
+              </div>
+              <el-table :data="activeStep.asserts" style="width: 100%; margin-top: 10px;">                  <el-table-column prop="assert_type" label="类型" width="150">
                     <template #default="scope">
                       <el-select v-model="scope.row.assert_type" placeholder="断言类型">
                         <el-option label="status_code" value="status_code"></el-option>
@@ -162,6 +175,7 @@
                     </template>
                   </el-table-column>
                 </el-table>
+              </div>
           </el-form-item>
         </el-form>
         
@@ -169,6 +183,7 @@
           <el-button type="primary" @click="handleTestStep">测试当前步骤</el-button>
           <el-button @click="handleRunFromStep">从此步骤开始测试</el-button>
           <el-button type="success" @click="handleRunFullCase">执行完整用例</el-button>
+          <el-button type="primary" @click="handleSaveCase" class="save-button">保存</el-button>
         </div>
         
         <!-- 执行配置对话框 -->
@@ -225,6 +240,7 @@ const caseInfo = ref({
 const steps = ref([])
 const activeStepIndex = ref(-1)
 const activeTab = ref('headers')
+const draggedStepIndex = ref(-1)
 const environments = ref([])
 const commonParams = ref([])
 const execDialogVisible = ref(false)
@@ -339,7 +355,7 @@ const handleSaveCase = async () => {
     const saveData = {
       case_name: caseInfo.value.name,
       case_description: caseInfo.value.description,
-      steps: steps.value.map(step => {
+      steps: steps.value.map((step, index) => {
         // 将字符串转换回对象
         try {
           // 将headersList转换为headers对象
@@ -367,7 +383,7 @@ const handleSaveCase = async () => {
             name: step.name,
             method: step.method,
             path: step.path,
-            sort: step.sort,
+            sort: index,
             enabled: step.enabled,
             request: {
               headers: headers,
@@ -424,12 +440,71 @@ const handleDeleteStep = (index) => {
     activeStepIndex.value = Math.max(0, activeStepIndex.value - 1)
   }
 }
-
 const handleEditStep = (index) => {
   // 编辑步骤逻辑，这里直接选中步骤即可
   activeStepIndex.value = index
 }
 
+const handleDragStart = (event, index) => {
+  draggedStepIndex.value = index
+  event.target.style.opacity = '0.5'
+  event.dataTransfer.effectAllowed = 'move'
+  event.dataTransfer.setData('text/plain', index)
+}
+
+const handleDrop = (event, index) => {
+  event.preventDefault()
+  event.target.style.opacity = '1'
+  
+  const fromIndex = parseInt(event.dataTransfer.getData('text/plain'))
+  if (fromIndex !== -1 && fromIndex !== index) {
+    // 直接操作步骤数组
+    const [draggedStep] = steps.value.splice(fromIndex, 1)
+    steps.value.splice(index, 0, draggedStep)
+    
+    // 确保排序值更新
+    steps.value.forEach((step, idx) => {
+      step.sort = idx
+    })
+    
+    // 更新激活步骤索引
+    if (activeStepIndex.value === fromIndex) {
+      activeStepIndex.value = index
+    } else if (activeStepIndex.value > fromIndex && activeStepIndex.value <= index) {
+      activeStepIndex.value--
+    } else if (activeStepIndex.value < fromIndex && activeStepIndex.value >= index) {
+      activeStepIndex.value++
+    }
+  }
+}
+
+const handleMoveStep = (index, direction) => {
+  if (direction === 'up' && index > 0) {
+    // 上移
+    const [step] = steps.value.splice(index, 1)
+    steps.value.splice(index - 1, 0, step)
+    // 更新激活步骤索引
+    if (activeStepIndex.value === index) {
+      activeStepIndex.value = index - 1
+    } else if (activeStepIndex.value === index - 1) {
+      activeStepIndex.value = index
+    }
+  } else if (direction === 'down' && index < steps.value.length - 1) {
+    // 下移
+    const [step] = steps.value.splice(index, 1)
+    steps.value.splice(index + 1, 0, step)
+    // 更新激活步骤索引
+    if (activeStepIndex.value === index) {
+      activeStepIndex.value = index + 1
+    } else if (activeStepIndex.value === index + 1) {
+      activeStepIndex.value = index
+    }
+  }
+  // 确保排序值更新
+  steps.value.forEach((step, idx) => {
+    step.sort = idx
+  })
+}
 const handleAddExtract = () => {
   if (activeStep.value) {
     activeStep.value.extracts.push({
@@ -749,6 +824,27 @@ onMounted(() => {
   border-top: 1px solid #e0e0e0;
   display: flex;
   gap: 10px;
+  align-items: center;
+}
+
+.save-button {
+  margin-left: auto;
+}
+
+.form-item-header {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding-right: 10px;
+}
+
+.el-form-item {
+  margin-bottom: 20px !important;
+}
+
+.el-form-item:last-child {
+  margin-bottom: 0 !important;
 }
 
 @media (max-width: 1200px) {

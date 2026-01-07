@@ -24,13 +24,21 @@ def get_cases(project_id):
         
         # 格式化测试用例数据
         cases_data = []
+        from app.models.user import User
         for case in pagination.items:
+            # 获取创建人昵称
+            creator_nickname = ''
+            creator = User.query.filter_by(id=case.creator_id).first()
+            if creator:
+                creator_nickname = creator.nickname or creator.username
+            
             cases_data.append({
                 'id': case.id,
                 'name': case.name,
                 'description': case.description,
                 'sort': case.sort,
                 'creator_id': case.creator_id,
+                'creator_name': creator_nickname,
                 'created_at': case.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'updated_at': case.updated_at.strftime('%Y-%m-%d %H:%M:%S')
             })

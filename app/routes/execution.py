@@ -254,6 +254,7 @@ def get_project_reports(project_id):
         
         # 格式化报告数据
         reports = []
+        from app.models.user import User
         for task in pagination.items:
             # 获取测试用例信息
             case_name = ''
@@ -268,6 +269,12 @@ def get_project_reports(project_id):
             if env:
                 env_name = env.name
             
+            # 获取执行人昵称
+            executor_nickname = ''
+            executor = User.query.filter_by(id=task.creator_id).first()
+            if executor:
+                executor_nickname = executor.nickname or executor.username
+            
             report = {
                 'task_id': task.id,
                 'case_id': task.case_id,
@@ -279,6 +286,8 @@ def get_project_reports(project_id):
                 'fail_count': task.fail_count,
                 'total_steps': task.total_steps,
                 'duration': task.duration,
+                'creator_id': task.creator_id,
+                'executor_name': executor_nickname,
                 'created_at': task.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }
             reports.append(report)

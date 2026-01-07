@@ -171,7 +171,7 @@ const loadCases = async () => {
     if (response.data.code === 200) {
       cases.value = response.data.data.cases.map(caseItem => ({
         ...caseItem,
-        creator_name: caseItem.creator_id || '-',
+        creator_name: caseItem.creator_name || caseItem.creator_id || '-',
         last_executed: caseItem.last_executed || '-'
       }))
       pagination.value.total = response.data.data.pagination.total
