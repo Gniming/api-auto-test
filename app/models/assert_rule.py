@@ -8,7 +8,7 @@ class AssertRule(db.Model):
     step_id = db.Column(db.Integer, nullable=False)
     assert_type = db.Column(db.Enum('status_code', 'contain', 'not_contain', 'json_equal', 'json_schema', 'regex', 'length', 'database'), nullable=False)
     expect_value = db.Column(db.Text)
-    actual_source = db.Column(db.Enum('response_body', 'response_headers', 'response_status'), default='response_body')
+    actual_source = db.Column(db.String(255), default='response_body')
     description = db.Column(db.String(255))
     creator_id = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

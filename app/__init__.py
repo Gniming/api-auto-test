@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_cors import CORS
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -8,6 +9,9 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
+    
+    # 添加 CORS 支持，允许所有来源
+    CORS(app, supports_credentials=True, origins='*')
     
     db.init_app(app)
     login_manager.init_app(app)

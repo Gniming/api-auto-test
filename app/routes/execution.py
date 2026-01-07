@@ -93,11 +93,10 @@ def run_steps(env_id, step_ids, common_params_ids=None, case_id=None):
         pass_count = 0
         fail_count = 0
         
-        for step_id in step_ids:
-            step = CaseStep.query.filter_by(id=step_id).first()
-            if not step:
-                continue
-            
+        # 获取所有步骤并按sort字段排序
+        steps = CaseStep.query.filter(CaseStep.id.in_(step_ids)).order_by(CaseStep.sort).all()
+        
+        for step in steps:
             # 执行单个步骤
             step_result = execute_single_step(step, env_base_url, variables_context, global_headers)
             execution_log.append(step_result)

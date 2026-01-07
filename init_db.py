@@ -134,7 +134,7 @@ def init_database():
                     step_id INT NOT NULL, 
                     assert_type ENUM('status_code','contain','not_contain','json_equal','json_schema','regex','length','database') NOT NULL, 
                     expect_value LONGTEXT, 
-                    actual_source ENUM('response_body','response_headers','response_status') DEFAULT 'response_body', 
+                    actual_source VARCHAR(255)DEFAULT 'response_status', 
                     description VARCHAR(255), 
                     creator_id INT, 
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 

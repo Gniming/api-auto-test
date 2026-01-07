@@ -280,6 +280,22 @@ def execute_single_step(step, env_base_url, variables_context=None, global_heade
                 actual_value = str(dict(response.headers))
             elif actual_source == 'response_body':
                 actual_value = response.text
+            elif actual_source.startswith('$'):
+                # JSONPath 表达式，从响应中提取值
+                try:
+                    json_data = response.json()
+                    # 简单的 JSONPath 解析
+                    keys = actual_source[2:].split('.') if actual_source.startswith('$.') else actual_source[1:].split('.')
+                    value = json_data
+                    for key in keys:
+                        if isinstance(value, dict) and key in value:
+                            value = value[key]
+                        else:
+                            value = None
+                            break
+                    actual_value = str(value) if value is not None else ''
+                except:
+                    actual_value = ''
             
             assert_passed = False
             try:
