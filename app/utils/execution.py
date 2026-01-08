@@ -12,7 +12,7 @@ BUILTIN_FUNCTIONS = {
     '__random_plate': lambda: generate_random_plate(),
     '__random_phone': lambda: generate_random_phone(),
     '__random_string': lambda length=8: ''.join(random.choices(string.ascii_letters + string.digits, k=int(length or 8))),
-    '__random_string_with_prefix': lambda prefix='', length=8: prefix + ''.join(random.choices(string.ascii_letters + string.digits, k=max(0, int(length or 8) - len(prefix)))),
+    '__random_string_with_prefix': lambda prefix='', length=8: prefix + ''.join(random.choices(string.digits, k=max(0, int(length or 8) - len(prefix)))),
     '__random_int': lambda min_val=1, max_val=100: str(random.randint(int(min_val), int(max_val))),
     '__random_float': lambda min_val=0, max_val=100, decimal=2: f"{random.uniform(float(min_val), float(max_val)):.{int(decimal)}f}",
     '__random_bool': lambda: str(random.choice([True, False])),
