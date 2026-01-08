@@ -8,13 +8,50 @@ from datetime import datetime
 
 # 内置函数映射字典
 BUILTIN_FUNCTIONS = {
+    # 随机数据生成
     '__random_plate': lambda: generate_random_plate(),
     '__random_phone': lambda: generate_random_phone(),
     '__random_string': lambda length=8: ''.join(random.choices(string.ascii_letters + string.digits, k=int(length or 8))),
+    '__random_string_with_prefix': lambda prefix='', length=8: prefix + ''.join(random.choices(string.ascii_letters + string.digits, k=max(0, int(length or 8) - len(prefix)))),
     '__random_int': lambda min_val=1, max_val=100: str(random.randint(int(min_val), int(max_val))),
+    '__random_float': lambda min_val=0, max_val=100, decimal=2: f"{random.uniform(float(min_val), float(max_val)):.{int(decimal)}f}",
+    '__random_bool': lambda: str(random.choice([True, False])),
+    '__random_email': lambda domain='example.com': f"{''.join(random.choices(string.ascii_lowercase + string.digits, k=10))}@{domain}",
+    '__random_ip': lambda: '.'.join(str(random.randint(0, 255)) for _ in range(4)),
+    '__random_mac': lambda: ':'.join(['{:02x}'.format(random.randint(0, 255)) for _ in range(6)]),
+    
+    # 时间日期相关
     '__timestamp': lambda: str(int(datetime.now().timestamp())),
+    '__datetime': lambda fmt='%Y-%m-%d %H:%M:%S': datetime.now().strftime(fmt or '%Y-%m-%d %H:%M:%S'),
     '__date': lambda fmt='%Y-%m-%d': datetime.now().strftime(fmt or '%Y-%m-%d'),
+    '__time': lambda fmt='%H:%M:%S': datetime.now().strftime(fmt or '%H:%M:%S'),
+    '__timestamp_ms': lambda: str(int(datetime.now().timestamp() * 1000)),
+    
+    # UUID和唯一标识
     '__uuid': lambda: str(uuid.uuid4()),
+    '__uuid1': lambda: str(uuid.uuid1()),
+    '__uuid3': lambda namespace='ns:DNS', name='example.com': str(uuid.uuid3(uuid.NAMESPACE_DNS, name)),
+    '__uuid5': lambda namespace='ns:DNS', name='example.com': str(uuid.uuid5(uuid.NAMESPACE_DNS, name)),
+    
+    # 字符串操作
+    '__lowercase': lambda text: text.lower(),
+    '__uppercase': lambda text: text.upper(),
+    '__capitalize': lambda text: text.capitalize(),
+    '__trim': lambda text: text.strip(),
+    '__substring': lambda text, start=0, end=None: text[int(start):int(end) if end else None],
+    
+    # 数学计算
+    '__add': lambda a, b: str(float(a) + float(b)),
+    '__subtract': lambda a, b: str(float(a) - float(b)),
+    '__multiply': lambda a, b: str(float(a) * float(b)),
+    '__divide': lambda a, b: str(float(a) / float(b)) if float(b) != 0 else '0',
+    '__modulus': lambda a, b: str(float(a) % float(b)) if float(b) != 0 else '0',
+    
+    # 其他工具函数
+    '__url_encode': lambda text: requests.utils.quote(text),
+    '__url_decode': lambda text: requests.utils.unquote(text),
+    '__json_encode': lambda obj: json.dumps(obj),
+    '__json_decode': lambda text: json.loads(text),
 }
 
 def generate_random_plate():
