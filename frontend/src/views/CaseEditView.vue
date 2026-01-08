@@ -641,7 +641,37 @@ const handleTestStep = async () => {
 }
 
 const handleRunFromStep = async () => {
-  ElMessage.info('功能待实现')
+  if (!activeStep.value) {
+    ElMessage.warning('请先选择步骤')
+    return
+  }
+  
+  await loadEnvironmentsAndParams()
+  
+  if (environments.value.length === 0) {
+    ElMessage.warning('请先创建环境')
+    return
+  }
+  
+  // 获取当前步骤及其之后的所有步骤ID
+  const currentIndex = activeStepIndex.value
+  const stepIds = steps.value.slice(currentIndex).map(step => step.id).filter(id => id)
+  
+  if (stepIds.length === 0) {
+    ElMessage.warning('没有可执行的步骤')
+    return
+  }
+  
+  // 打开执行配置对话框
+  execConfig.value = {
+    envId: environments.value[0].id,
+    commonParamsIds: [],
+    execType: 'fromStep',
+    stepId: activeStep.value.id,
+    stepIds: stepIds
+  }
+  execDialogTitle.value = '从此步骤开始测试'
+  execDialogVisible.value = true
 }
 
 const handleRunFullCase = async () => {
@@ -681,6 +711,19 @@ const handleExecConfirm = async () => {
         if (debugResponse.data.code === 200) {
           ElMessage.success('测试成功')
           router.push(`/tasks/${debugResponse.data.data.task_id}`)
+        }
+        break
+        
+      case 'fromStep':
+        // 从此步骤开始测试
+        const fromStepResponse = await axios.post('http://localhost:5001/api/debug/run', {
+          env_id: execConfig.value.envId,
+          step_ids: execConfig.value.stepIds,
+          common_params_ids: execConfig.value.commonParamsIds
+        })
+        if (fromStepResponse.data.code === 200) {
+          ElMessage.success('测试成功')
+          router.push(`/tasks/${fromStepResponse.data.data.task_id}`)
         }
         break
         

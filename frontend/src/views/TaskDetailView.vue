@@ -1,9 +1,7 @@
 <template>
   <div class="task-detail-container">
     <div class="task-header">
-      <el-button @click="handleBack">← 返回</el-button>
       <h2>执行报告详情</h2>
-      <el-button type="primary" @click="handleReRun">重新执行</el-button>
     </div>
     
     <div class="task-summary">
@@ -166,14 +164,6 @@ const loadTaskDetail = async () => {
   }
 }
 
-const handleBack = () => {
-  router.push('/projects/1/reports')
-}
-
-const handleReRun = () => {
-  ElMessage.info('重新执行功能待实现')
-}
-
 const formatJson = (obj) => {
   try {
     return JSON.stringify(obj, null, 2)
@@ -211,9 +201,8 @@ onMounted(() => {
 }
 
 .task-header h2 {
-  flex: 1;
   margin: 0;
-  margin-left: 20px;
+  text-align: center;
 }
 
 .task-summary {
