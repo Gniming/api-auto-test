@@ -59,6 +59,12 @@ const router = createRouter({
           name: 'reports',
           component: () => import('../views/ReportListView.vue'),
           meta: { requiresAuth: true }
+        },
+        {
+          path: 'builtin-functions',
+          name: 'builtin-functions',
+          component: () => import('../views/BuiltinFunctionsView.vue'),
+          meta: { requiresAuth: true }
         }
       ]
     }

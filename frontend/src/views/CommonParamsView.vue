@@ -5,68 +5,34 @@
       <el-button type="primary" @click="handleCreateParam">+ 新建公共参数组</el-button>
     </div>
     
-    <el-tabs v-model="activeTab">
-      <el-tab-pane label="全局" name="global">
-        <el-table :data="globalParams" style="width: 100%" :cell-style="{ padding: '12px 8px' }">
-          <el-table-column prop="name" label="名称" width="180"></el-table-column>
-          <el-table-column prop="headers" label="Headers 预览" min-width="300" flex="1">
-            <template #default="scope">
-              <pre class="headers-preview">{{ typeof scope.row.headers === 'object' ? JSON.stringify(scope.row.headers, null, 2) : scope.row.headers }}</pre>
-            </template>
-          </el-table-column>
-          <el-table-column prop="description" label="描述" width="150"></el-table-column>
-          <el-table-column prop="creator_name" label="创建人" width="120"></el-table-column>
-          <el-table-column label="操作" width="150">
-            <template #default="scope">
-              <el-button size="small" @click="handleEditParam(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="handleDeleteParam(scope.row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 分页组件 -->
-        <div class="pagination-container">
-          <el-pagination
-            v-model:current-page="globalPagination.page"
-            v-model:page-size="globalPagination.pageSize"
-            :page-sizes="[10, 20, 50, 100]"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="globalPagination.total"
-            @size-change="handleGlobalSizeChange"
-            @current-change="handleGlobalCurrentChange"
-          />
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="当前项目" name="project">
-        <el-table :data="projectParams" style="width: 100%">
-          <el-table-column prop="name" label="名称" width="200"></el-table-column>
-          <el-table-column prop="headers" label="Headers 预览" width="300">
-            <template #default="scope">
-              <pre class="headers-preview">{{ typeof scope.row.headers === 'object' ? JSON.stringify(scope.row.headers, null, 2) : scope.row.headers }}</pre>
-            </template>
-          </el-table-column>
-          <el-table-column prop="description" label="描述" width="200"></el-table-column>
-          <el-table-column prop="creator_name" label="创建人" width="120"></el-table-column>
-          <el-table-column label="操作" width="150">
-            <template #default="scope">
-              <el-button size="small" @click="handleEditParam(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="handleDeleteParam(scope.row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 分页组件 -->
-        <div class="pagination-container">
-          <el-pagination
-            v-model:current-page="projectPagination.page"
-            v-model:page-size="projectPagination.pageSize"
-            :page-sizes="[10, 20, 50, 100]"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="projectPagination.total"
-            @size-change="handleProjectSizeChange"
-            @current-change="handleProjectCurrentChange"
-          />
-        </div>
-      </el-tab-pane>
-    </el-tabs>
+    <el-table :data="globalParams" style="width: 100%" :cell-style="{ padding: '12px 8px' }">
+      <el-table-column prop="name" label="名称" width="180"></el-table-column>
+      <el-table-column prop="headers" label="Headers 预览" min-width="300" flex="1">
+        <template #default="scope">
+          <pre class="headers-preview">{{ typeof scope.row.headers === 'object' ? JSON.stringify(scope.row.headers, null, 2) : scope.row.headers }}</pre>
+        </template>
+      </el-table-column>
+      <el-table-column prop="description" label="描述" width="150"></el-table-column>
+      <el-table-column prop="creator_name" label="创建人" width="120"></el-table-column>
+      <el-table-column label="操作" width="150">
+        <template #default="scope">
+          <el-button size="small" @click="handleEditParam(scope.row)">编辑</el-button>
+          <el-button size="small" type="danger" @click="handleDeleteParam(scope.row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页组件 -->
+    <div class="pagination-container">
+      <el-pagination
+        v-model:current-page="globalPagination.page"
+        v-model:page-size="globalPagination.pageSize"
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="globalPagination.total"
+        @size-change="handleGlobalSizeChange"
+        @current-change="handleGlobalCurrentChange"
+      />
+    </div>
     
     <!-- 新建/编辑公共参数对话框 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle">
@@ -84,12 +50,6 @@
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="paramForm.description" type="textarea" placeholder="请输入描述"></el-input>
-        </el-form-item>
-        <el-form-item label="作用域">
-          <el-radio-group v-model="paramForm.scope">
-            <el-radio label="global">全局</el-radio>
-            <el-radio label="project">当前项目</el-radio>
-          </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>

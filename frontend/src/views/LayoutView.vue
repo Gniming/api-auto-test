@@ -31,16 +31,14 @@
           <el-menu-item index="/common-params">
             <span>公共参数</span>
           </el-menu-item>
-          <el-sub-menu index="/cases">
-          <template #title>
-            <span>用例管理</span>
-          </template>
           <el-menu-item index="/projects/1/cases">
-            <span>用例列表</span>
+            <span>用例管理</span>
           </el-menu-item>
-        </el-sub-menu>
           <el-menu-item index="/reports">
             <span>报告中心</span>
+          </el-menu-item>
+          <el-menu-item index="/builtin-functions">
+            <span>内置函数</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
@@ -67,8 +65,8 @@ const userStore = useUserStore()
 
 const activeMenu = computed(() => {
   const path = route.path
-  if (path.startsWith('/projects/')) {
-    return '/cases'
+  if (path.startsWith('/projects/') && path.includes('/cases')) {
+    return '/projects/1/cases'
   }
   return path
 })

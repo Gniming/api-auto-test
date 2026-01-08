@@ -137,6 +137,10 @@ const loadProjects = async () => {
     const response = await axios.get('http://localhost:5001/api/projects')
     if (response.data.code === 200) {
       projects.value = response.data.data.projects
+      // 将 projectId 转换为数字类型以匹配项目列表中的 ID 类型
+      if (projectId.value) {
+        projectId.value = Number(projectId.value)
+      }
       // 如果没有项目ID，使用第一个项目
       if (!projectId.value && projects.value.length > 0) {
         projectId.value = projects.value[0].id
@@ -146,6 +150,9 @@ const loadProjects = async () => {
         const projectExists = projects.value.some(p => p.id == projectId.value)
         if (!projectExists) {
           projectId.value = projects.value[0].id
+          loadCases()
+        } else {
+          // 项目ID有效，加载用例
           loadCases()
         }
       }
