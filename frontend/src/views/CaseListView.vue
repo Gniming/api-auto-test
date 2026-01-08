@@ -26,7 +26,6 @@
           <el-button size="small" @click="handleEditCase(scope.row.id)">编辑</el-button>
           <el-button size="small" type="primary" @click="handleRunCase(scope.row.id)">执行</el-button>
           <el-button size="small" type="danger" @click="handleDeleteCase(scope.row.id)">删除</el-button>
-          <el-button size="small" @click="handleCopyCase(scope.row.id)">复制</el-button>
         </div>
         </template>
       </el-table-column>
@@ -297,9 +296,6 @@ const handleDeleteCase = async (id) => {
     ElMessage.error('删除用例失败')
   }
 }
-const handleCopyCase = (id) => {
-  ElMessage.info('复制功能待实现')
-}
 
 const handleSizeChange = (size) => {
   pagination.value.pageSize = size
@@ -343,7 +339,7 @@ onMounted(async () => {
 .action-buttons {
   display: flex;
   gap: 8px;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
   flex-wrap: wrap;
 }
