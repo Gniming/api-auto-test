@@ -242,7 +242,8 @@ def get_case_edit_info(case_id):
                 extracts_info.append({
                     'id': extract.id,
                     'var_name': extract.var_name,
-                    'expression': extract.expression
+                    'expression': extract.expression,
+                    'var_type': getattr(extract, 'var_type', 'string')
                 })
             
             # 格式化断言规则
@@ -383,12 +384,14 @@ def batch_save_steps(case_id):
                         extract_id = extract_info.get('id')
                         var_name = extract_info.get('var_name')
                         expression = extract_info.get('expression')
+                        var_type = extract_info.get('var_type', 'string')
                         
                         if extract_id and extract_id in existing_extract_ids:
                             # 更新现有变量提取
                             extract = existing_extract_ids[extract_id]
                             extract.var_name = var_name
                             extract.expression = expression
+                            extract.var_type = var_type
                             extract.updated_at = datetime.now()
                             del existing_extract_ids[extract_id]
                         else:
@@ -397,6 +400,7 @@ def batch_save_steps(case_id):
                                 step_id=step_id,
                                 var_name=var_name,
                                 expression=expression,
+                                var_type=var_type,
                                 creator_id=current_user.id
                             )
                             db.session.add(new_extract)

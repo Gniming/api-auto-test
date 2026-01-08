@@ -87,7 +87,19 @@ def resolve_variables(text, variables_context=None):
         result = re.sub(r'\$\{([^}]+)\}', replace_var, result)
         return result
     elif isinstance(text, dict):
-        return {key: resolve_variables(value, variables_context) for key, value in text.items()}
+        # 对于字典，需要特殊处理变量替换
+        new_dict = {}
+        for key, value in text.items():
+            if isinstance(value, str) and value.startswith('${') and '}' in value:
+                # 直接使用变量值，保持其原始类型
+                var_name = value[2:-1].strip()
+                if var_name in variables_context:
+                    new_dict[key] = variables_context[var_name]
+                else:
+                    new_dict[key] = resolve_variables(value, variables_context)
+            else:
+                new_dict[key] = resolve_variables(value, variables_context)
+        return new_dict
     elif isinstance(text, list):
         return [resolve_variables(item, variables_context) for item in text]
     else:
@@ -236,6 +248,7 @@ def execute_single_step(step, env_base_url, variables_context=None, global_heade
         for extract in extracts:
             var_name = extract.var_name
             expression = extract.expression
+            var_type = getattr(extract, 'var_type', 'string')
             try:
                 # 简单的 JSONPath 实现，这里使用正则匹配
                 if expression.startswith('$.'):
@@ -252,6 +265,20 @@ def execute_single_step(step, env_base_url, variables_context=None, global_heade
                                 value = None
                                 break
                         if value is not None:
+                            # 类型转换
+                            if var_type != 'string':
+                                try:
+                                    if var_type == 'int':
+                                        value = int(value)
+                                    elif var_type == 'float':
+                                        value = float(value)
+                                    elif var_type == 'bool':
+                                        if isinstance(value, str):
+                                            value = value.lower() == 'true'
+                                        else:
+                                            value = bool(value)
+                                except:
+                                    pass
                             extract_results[var_name] = value
                             variables_context[var_name] = value
                     except:
@@ -260,8 +287,20 @@ def execute_single_step(step, env_base_url, variables_context=None, global_heade
                     # 正则提取
                     match = re.search(expression, response.text)
                     if match:
-                        extract_results[var_name] = match.group(0)
-                        variables_context[var_name] = match.group(0)
+                        value = match.group(0)
+                        # 类型转换
+                        if var_type != 'string':
+                            try:
+                                if var_type == 'int':
+                                    value = int(value)
+                                elif var_type == 'float':
+                                    value = float(value)
+                                elif var_type == 'bool':
+                                    value = value.lower() == 'true'
+                            except:
+                                pass
+                        extract_results[var_name] = value
+                        variables_context[var_name] = value
             except Exception:
                 pass
         

@@ -126,6 +126,16 @@
                     <template #default="scope">
                       <el-input v-model="scope.row.expression" placeholder="表达式"></el-input>
                     </template>
+                  </el-table-column>
+                  <el-table-column prop="var_type" label="变量类型" width="120">
+                    <template #default="scope">
+                      <el-select v-model="scope.row.var_type" placeholder="类型">
+                        <el-option label="字符串" value="string"></el-option>
+                        <el-option label="整数" value="int"></el-option>
+                        <el-option label="布尔值" value="bool"></el-option>
+                        <el-option label="浮点数" value="float"></el-option>
+                      </el-select>
+                    </template>
                   </el-table-column>                  <el-table-column label="操作" width="100">
                     <template #default="scope">
                       <el-button size="small" type="danger" @click="handleDeleteExtract(scope.$index)">删除</el-button>
@@ -509,7 +519,8 @@ const handleAddExtract = () => {
   if (activeStep.value) {
     activeStep.value.extracts.push({
       var_name: '',
-      expression: ''
+      expression: '',
+      var_type: 'string'
     })
   }
 }

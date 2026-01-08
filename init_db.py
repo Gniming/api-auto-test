@@ -123,6 +123,7 @@ def init_database():
                     var_name VARCHAR(100) NOT NULL, 
                     expression TEXT NOT NULL, 
                     scope ENUM('case','global') DEFAULT 'case', 
+                    var_type ENUM('string','int','bool','float') DEFAULT 'string',
                     creator_id INT, 
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
