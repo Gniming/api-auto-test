@@ -367,46 +367,56 @@ const handleSaveCase = async () => {
       case_description: caseInfo.value.description,
       steps: steps.value.map((step, index) => {
         // 将字符串转换回对象
-        try {
-          // 将headersList转换为headers对象
-          const headers = {}
-          if (step.request.headersList) {
-            step.request.headersList.forEach(item => {
-              if (item.key) {
-                headers[item.key] = item.value
-              }
-            })
+        // 将headersList转换为headers对象
+        const headers = {}
+        if (step.request.headersList) {
+          step.request.headersList.forEach(item => {
+            if (item.key) {
+              headers[item.key] = item.value
+            }
+          })
+        }
+        
+        // 将paramsList转换为params对象
+        const params = {}
+        if (step.request.paramsList) {
+          step.request.paramsList.forEach(item => {
+            if (item.key) {
+              params[item.key] = item.value
+            }
+          })
+        }
+        
+        // 处理 data 字段
+        let dataObj = {}
+        if (typeof step.request.data === 'object') {
+          // 如果已经是对象，直接使用
+          dataObj = step.request.data
+        } else if (step.request.data) {
+          // 如果是字符串且不为空，尝试解析
+          try {
+            dataObj = JSON.parse(step.request.data)
+          } catch (e) {
+            // 解析失败，使用空对象
+            dataObj = {}
           }
-          
-          // 将paramsList转换为params对象
-          const params = {}
-          if (step.request.paramsList) {
-            step.request.paramsList.forEach(item => {
-              if (item.key) {
-                params[item.key] = item.value
-              }
-            })
-          }
-          
-          return {
-            id: step.id,
-            name: step.name,
-            method: step.method,
-            path: step.path,
-            sort: index,
-            enabled: step.enabled,
-            request: {
-              headers: headers,
-              params: params,
-              data: JSON.parse(step.request.data),
-              timeout: step.request.timeout || 30
-            },
-            extracts: step.extracts || [],
-            asserts: step.asserts || []
-          }
-        } catch (e) {
-          ElMessage.error('JSON 格式错误，请检查')
-          return step
+        }
+        
+        return {
+          id: step.id,
+          name: step.name,
+          method: step.method,
+          path: step.path,
+          sort: index,
+          enabled: step.enabled,
+          request: {
+            headers: headers,
+            params: params,
+            data: dataObj,
+            timeout: step.request.timeout || 30
+          },
+          extracts: step.extracts || [],
+          asserts: step.asserts || []
         }
       })
     }
